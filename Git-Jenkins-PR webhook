@@ -1,0 +1,22 @@
+# Step 1: Configure a Webhook in Bitbucket
+
+In your Bitbucket repository, go to "Settings" > "Webhooks."
+Click on "Add webhook."
+Fill in the following details:
+Title: Give your webhook a descriptive title.
+URL: Enter the URL of your Jenkins server's webhook endpoint. The URL format typically looks like this: http://jenkins-server:port/bitbucket-hook/.
+Status: Select "Active" to enable the webhook.
+Triggers: Choose "Pull request created" and "Pull request updated" to trigger the webhook whenever a PR is created or updated.
+Repository: Select the repository for which you want to configure the webhook.
+Click "Save" to create the webhook in Bitbucket.
+
+# Step 2: Set Up a Jenkins Job
+
+In Jenkins, create or configure a Jenkins job for your project. This job should be set up to build and test your code when triggered by Bitbucket PR events.
+In the job configuration, under "Build Triggers," select "Generic Webhook Trigger."
+Configure the webhook trigger settings:
+Token: Generate a secret token and enter it here. This token will be used to verify the authenticity of incoming requests.
+Project Name: Specify the project name or a regular expression pattern for matching Bitbucket repository names.
+Trigger on descendent jobs: If you have downstream jobs that need to be triggered, enable this option.
+Define the steps in your Jenkins job that you want to execute when the webhook is triggered. These steps should include building, testing, and any other actions you want to perform on PR events.
+Save the job configuration.
