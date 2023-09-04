@@ -32,7 +32,7 @@ pipeline {
                 // Run your automated tests here (e.g., Terratest)
             }
         }
-
+##The BRANCH_NAME environment variable in the Jenkins pipeline script is automatically set by Jenkins and represents the name of the branch that triggered the pipeline. 
         stage('Terraform Apply') {
             when {
                 expression { currentBuild.changeSets != null && env.BRANCH_NAME == 'master' }
