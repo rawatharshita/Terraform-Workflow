@@ -1,18 +1,10 @@
-Step 1: Set Up Bitbucket Webhooks
-
-In your Bitbucket repository, go to "Settings" > "Webhooks" > "Add webhook."
-Set the "Title" and "URL" for your webhook. The URL should point to your Jenkins server's webhook URL. It will typically be in the format: http://jenkins-server:port/bitbucket-hook/.
-Under "Triggers," select "Repository > Push" to trigger the webhook on code pushes.
-Save the webhook configuration.
-
-
-STEP-2: Install Required Jenkins Plugins
+# STEP-2: Install Required Jenkins Plugins
 
 You'll need the following Jenkins plugins:
 
 Bitbucket Branch Source Plugin: This plugin allows Jenkins to interact with Bitbucket repositories and handle webhooks.
 Pipeline Plugin: This plugin enables Jenkins Pipeline jobs using a Jenkinsfile.
-Terraform Plugin
+Terraform Plugin: This is for executing terraform code.
 
 STEP- 2: Configure to provide path where terraform is installed on server
 
