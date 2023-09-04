@@ -10,9 +10,22 @@ Triggers: Choose "Pull request created" and "Pull request updated" to trigger th
 Repository: Select the repository for which you want to configure the webhook.
 Click "Save" to create the webhook in Bitbucket.
 
-# Step 2: Set Up a Jenkins Job
+Step 2: Configure a Commit Event Webhook for the Master Branch in Bitbucket
 
-In Jenkins, create or configure a Jenkins job for your project. This job should be set up to build and test your code when triggered by Bitbucket PR events.
+In your Bitbucket repository, go to "Settings" > "Webhooks."
+Click on "Add webhook."
+Fill in the following details for the commit event webhook:
+Title: Give your webhook a descriptive title.
+URL: Enter the URL of your Jenkins server's webhook endpoint (the same URL you used for the PR event webhook).
+Status: Select "Active" to enable the webhook.
+Triggers: Choose "Push" as the trigger event.
+Branches: Under "Choose the branches this will apply to," select "Repository has at least one branch matching."
+In the "Branch pattern" field, enter master. This ensures that the webhook is triggered only when commits are pushed to the master branch.
+Click "Save" to create the commit event webhook in Bitbucket.
+
+# Step 3: Set Up a Jenkins Job
+
+In Jenkins, create or configure a Jenkins job for your project. This job should be set up to build and test your code when triggered by Bitbucket PR events/master push.
 In the job configuration, under "Build Triggers," select "Generic Webhook Trigger."
 Configure the webhook trigger settings:
 Token: Generate a secret token and enter it here. This token will be used to verify the authenticity of incoming requests.
