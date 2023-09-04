@@ -2,8 +2,8 @@
 
 # PHASE-1: Writing the code and pushing to bitbucket
 
-1) DevOps write the terraform code.
-2) push it to devop's branch in bitbucket.
+1) DevOps writes the terraform code.
+2) Push it to devop's branch in bitbucket.
 
 # PHASE-3: Merge Request to MASTER  
 3) Once code is pushed to devOps's branch, a pull request is raised to merge changes to MASTER branch. 
