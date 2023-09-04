@@ -1,0 +1,58 @@
+pipeline {
+  agent any
+
+  environment {
+    DEV_AWS_REGION = "us-west-2"
+    DEV_BUCKET_NAME = "my-dev-bucket"
+    TEST_AWS_REGION = "us-east-1"
+    TEST_BUCKET_NAME = "my-test-bucket"
+  }
+
+  stages {
+    stage('Terraform Init and Apply for Dev') {
+      steps {
+        script {
+          // Select the Dev workspace
+          terraformWorkspaceSelect("dev")
+          
+          // Initialize Terraform with backend config and variables
+          sh 'terraform init -backend-config=backend-dev.hcl'
+          sh "terraform apply -var aws_region=${DEV_AWS_REGION} -var bucket_name=${DEV_BUCKET_NAME}"
+        }
+      }
+    }
+
+    stage('Terraform Init and Apply for Test') {
+      steps {
+        script {
+          // Select the Test workspace
+          terraformWorkspaceSelect("test")
+
+          // Initialize Terraform with backend config and variables
+          sh 'terraform init -backend-config=backend-test.hcl'
+          sh "terraform apply -var aws_region=${TEST_AWS_REGION} -var bucket_name=${TEST_BUCKET_NAME}"
+        }
+      }
+    }
+  }
+  
+  post {
+    always {
+      // Cleanup and workspace switch back to default (if needed)
+      terraformWorkspaceSelect("default")
+    }
+  }
+}
+
+def terraformWorkspaceSelect(workspaceName) {
+  // Check if the workspace exists
+  def workspaceExists = sh(script: "terraform workspace list | grep '^${workspaceName}\$'", returnStatus: true).toBoolean()
+  
+  if (!workspaceExists) {
+    // Create a new workspace if it doesn't exist
+    sh "terraform workspace new ${workspaceName}"
+  } else {
+    // Select the existing workspace
+    sh "terraform workspace select ${workspaceName}"
+  }
+}
