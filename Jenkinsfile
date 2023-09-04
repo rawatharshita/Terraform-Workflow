@@ -20,6 +20,19 @@ pipeline {
             }
         }
         
+        stage('Linting and Static Analysis') {
+            steps {
+                sh 'terraform fmt -check=true -diff=true'
+                sh 'tflint'
+            }
+        }
+        
+        stage('Automated Tests') {
+            steps {
+                // Run your automated tests here (e.g., Terratest)
+            }
+        }
+        
         stage('Terraform Apply') {
             when {
                 expression { currentBuild.changeSets != null }
