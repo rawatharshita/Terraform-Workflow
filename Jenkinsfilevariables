@@ -1,0 +1,70 @@
+pipeline {
+    agent any
+
+    environment {
+        TF_VAR_aws_region = '' // Declare an environment variable for AWS region
+        TF_VAR_instance_type = '' // Declare an environment variable for instance type
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout your Git repository
+                checkout scm
+            }
+        }
+
+        stage('Terraform Apply for Dev') {
+            when {
+                expression { params.ENVIRONMENT == 'dev' }
+            }
+            steps {
+                script {
+                    // Set environment-specific variables
+                    env.TF_VAR_aws_region = 'us-west-2'
+                    env.TF_VAR_instance_type = 't2.micro'
+
+                    // Initialize Terraform
+                    sh 'terraform init'
+
+                    // Apply Terraform for Dev
+                    sh 'terraform apply -auto-approve -var-file=environments/dev/variables.dev.tfvars'
+                }
+            }
+        }
+
+        stage('Terraform Apply for Test') {
+            when {
+                expression { params.ENVIRONMENT == 'test' }
+            }
+            steps {
+                script {
+                    // Set environment-specific variables
+                    env.TF_VAR_aws_region = 'us-east-1'
+                    env.TF_VAR_instance_type = 't2.small'
+
+                    // Initialize Terraform
+                    sh 'terraform init'
+
+                    // Apply Terraform for Test
+                    sh 'terraform apply -auto-approve -var-file=environments/test/variables.test.tfvars'
+                }
+            }
+        }
+
+        // Add more stages for other environments (e.g., prod) if needed
+    }
+
+    post {
+        always {
+            // Cleanup
+            script {
+                sh 'terraform destroy -auto-approve -var-file=environments/${params.ENVIRONMENT}/variables.${params.ENVIRONMENT}.tfvars'
+            }
+        }
+    }
+
+    parameters {
+        choice(name: 'ENVIRONMENT', choices: ['dev', 'test'], description: 'Select the environment to deploy')
+    }
+}
