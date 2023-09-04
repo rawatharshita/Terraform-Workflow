@@ -1,4 +1,0 @@
-n your Bitbucket repository, go to "Settings" > "Webhooks" > "Add webhook."
-Set the "Title" and "URL" for your webhook. The URL should point to your Jenkins server's webhook URL. It will typically be in the format: http://jenkins-server:port/bitbucket-hook/.
-Under "Triggers," select "Repository > Push" to trigger the webhook on code pushes.
-Save the webhook configuration.

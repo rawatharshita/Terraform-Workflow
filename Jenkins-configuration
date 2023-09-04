@@ -1,0 +1,12 @@
+STEP-1: Install Required Jenkins Plugins
+
+You'll need the following Jenkins plugins:
+
+Bitbucket Branch Source Plugin: This plugin allows Jenkins to interact with Bitbucket repositories and handle webhooks.
+Pipeline Plugin: This plugin enables Jenkins Pipeline jobs using a Jenkinsfile.
+Terraform
+
+STEP- 2: Configure to provide path where terraform is installed on server
+
+System configuration ---> Global tool configuration 
+Under Terraform tab: either install automatically or innstall the Terraform on server and provide the terraform executable path here.
