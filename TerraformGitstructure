@@ -1,0 +1,24 @@
+my-terraform-repo/
+|-- modules/
+|   |-- VPC
+|   |-- EC2
+|   |-- .....
+|-- dev/
+|   |-- main.tf
+|   |-- variables.tf
+|   |-- terraform.tfvars
+|-- test/
+|   |-- main.tf
+|   |-- variables.tf
+|   |-- terraform.tfvars
+|-- uat/
+|   |-- main.tf
+|   |-- variables.tf
+|   |-- terraform.tfvars
+|-- prod/
+|   |-- main.tf
+|   |-- variables.tf
+|   |-- terraform.tfvars
+|-- .gitignore
+|-- README.md
+|-- Jenkinsfile
