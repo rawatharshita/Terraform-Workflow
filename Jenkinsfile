@@ -1,3 +1,5 @@
+# Jenkinsfile if we have a common terraform code and different tfvars files for each environment.
+    
 pipeline {
     agent any
 
