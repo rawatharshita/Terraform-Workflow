@@ -1,10 +1,13 @@
+# Each environment has its own .tf, .tfvars and tfstate file
+
 pipeline {
     agent any
 
-    environment {
-        TF_VAR_aws_region = '' // Declare an environment variable for AWS region
-        TF_VAR_instance_type = '' // Declare an environment variable for instance type
+   parameters {
+        choice(name: 'ENVIRONMENT', choices: ['dev', 'test', 'UAT', 'Prod'], description: 'Select the environment to deploy')
     }
+}
+
 
     stages {
         stage('Checkout') {
@@ -14,57 +17,64 @@ pipeline {
             }
         }
 
-        stage('Terraform Apply for Dev') {
+      stage("Init ${ENVIRONMENT}") {
+                        steps {
+                            script {
+                                def workspaceDir = "Terraform/Environments/${ENVIRONMENT}"
+                                dir(workspaceDir) {
+                                    echo "Terraform for ${ENVIRONMENT}"
+                                    sh 'terraform init'
+                                    sh ' terraform fmt '
+                                    sh 'terraform validate'
+                                    sh 'terraform plan -out=tfplan.txt -var-file=terraform.tfvars' 
+                        
+                                }
+                            }
+                        }
+                    }
+                }   
+
+  stage('Approval') {
             when {
-                expression { params.ENVIRONMENT == 'dev' }
+                not {
+                    equals expected: true, actual: params.autoApprove
+                }
             }
+
             steps {
                 script {
-                    // Set environment-specific variables
-                    env.TF_VAR_aws_region = 'us-west-2'
-                    env.TF_VAR_instance_type = 't2.micro'
-
-                    // Initialize Terraform
-                    sh 'terraform init'
-
-                    // Apply Terraform for Dev
-                    sh 'terraform apply -auto-approve -var-file=environments/dev/variables.dev.tfvars'
+                    def plan = readFile 'tfplan.txt'
+                    input message: "Do you want to apply the plan?",
+                        parameters: [text(name: 'Plan', description: 'Please review the plan', defaultValue: plan)]
                 }
             }
         }
 
-        stage('Terraform Apply for Test') {
-            when {
-                expression { params.ENVIRONMENT == 'test' }
-            }
-            steps {
-                script {
-                    // Set environment-specific variables
-                    env.TF_VAR_aws_region = 'us-east-1'
-                    env.TF_VAR_instance_type = 't2.small'
+   
+                  stage("Apply ${ENVIRONMENT}") {
+                        when {
+                            expression { currentBuild.currentResultIsBetterOrEqualTo('SUCCESS') }
+                        }
+                        steps {
+                            script {
+                                def workspaceDir = "${WORKSPACE}/${ENVIRONMENT}"
+                                dir(workspaceDir) {
+                                    echo "Applying Terraform for ${ENVIRONMENT}"
+                                    sh 'terraform init'
+                                    sh "terraform apply -auto-approve -var-file=${ENVIRONMENT}/terraform.tfvars"
+                                }
+                            }
+                        }
+                    }
+                }   
 
-                    // Initialize Terraform
-                    sh 'terraform init'
-
-                    // Apply Terraform for Test
-                    sh 'terraform apply -auto-approve -var-file=environments/test/variables.test.tfvars'
-                }
-            }
+      post {
+        success {
+            // Perform cleanup or additional steps upon successful execution
         }
-
-        // Add more stages for other environments (e.g., prod) if needed
-    }
-
-    post {
-        always {
-            // Cleanup
-            script {
-                sh 'terraform destroy -auto-approve -var-file=environments/${params.ENVIRONMENT}/variables.${params.ENVIRONMENT}.tfvars'
-            }
+        failure {
+            // Handle failure scenarios if needed
         }
     }
 
-    parameters {
-        choice(name: 'ENVIRONMENT', choices: ['dev', 'test'], description: 'Select the environment to deploy')
-    }
-}
+    
